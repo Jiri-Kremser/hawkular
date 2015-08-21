@@ -35,9 +35,12 @@ module HawkularMetrics {
       when('/metrics/response-time', {
         templateUrl: 'plugins/metrics/html/response-time.html',
         resolve: {
-          hkResourceList: function ($filter, $location, $rootScope, $q, HawkularInventory) {
-            var resPromise = HawkularInventory.Resource.query({
-              environmentId: globalEnvironmentId
+          hkResourceList: function ($route, $filter, $location, $rootScope, $q, HawkularInventory) {
+            var idParts = $route.current.params.resourceId.split('~');
+            var feedId = idParts[0];
+            var resPromise = HawkularInventory.ResourceUnderFeed.query({
+              environmentId: globalEnvironmentId,
+              feedId: feedId
             }).$promise;
             resPromise.then(function (hkResourceList) {
               $location.path('/metrics/response-time/' + hkResourceList[0].id);
@@ -57,8 +60,10 @@ module HawkularMetrics {
         reloadOnSearch: false,
         resolve: {
           resource: function ($route, $location, HawkularInventory, NotificationsService:INotificationsService) {
-            var p = HawkularInventory.Resource.get({environmentId: globalEnvironmentId,
-              resourceId: $route.current.params.resourceId}).$promise;
+            var idParts = $route.current.params.resourceId.split('~');
+            var feedId = idParts[0];
+            var p = HawkularInventory.ResourceUnderFeed.get({environmentId: globalEnvironmentId,
+              feedId: feedId, resourceId: $route.current.params.resourceId}).$promise;
             p.then((response:any) => {
                 return response.properties.url;
               },
@@ -75,8 +80,10 @@ module HawkularMetrics {
         reloadOnSearch: false,
         resolve: {
           resource: function ($route, $location, HawkularInventory, NotificationsService:INotificationsService) {
-            var p = HawkularInventory.Resource.get({environmentId: globalEnvironmentId,
-              resourceId: $route.current.params.resourceId}).$promise;
+            var idParts = $route.current.params.resourceId.split('~');
+            var feedId = idParts[0];
+            var p = HawkularInventory.ResourceUnderFeed.get({environmentId: globalEnvironmentId,
+              feedId: feedId, resourceId: $route.current.params.resourceId}).$promise;
             p.then((response:any) => {
                 return response.properties.url;
               },
@@ -93,8 +100,10 @@ module HawkularMetrics {
         reloadOnSearch: false,
         resolve: {
           resource: function ($route, $location, HawkularInventory, NotificationsService:INotificationsService) {
-            var p = HawkularInventory.Resource.get({environmentId: globalEnvironmentId,
-              resourceId: $route.current.params.resourceId}).$promise;
+            var idParts = $route.current.params.resourceId.split('~');
+            var feedId = idParts[0];
+            var p = HawkularInventory.ResourceUnderFeed.get({environmentId: globalEnvironmentId,
+              feedId: feedId, resourceId: $route.current.params.resourceId}).$promise;
             p.then((response:any) => {
                 return response.properties.url;
               },
@@ -123,7 +132,7 @@ module HawkularMetrics {
                 redirectMissingAppServer();
                 return;
               }
-              var p = HawkularInventory.FeedResource.get({
+              var p = HawkularInventory.ResourceUnderFeed.get({
                 environmentId: globalEnvironmentId,
                 feedId: idParts[0],
                 resourceId: $route.current.params.resourceId + '~~'
